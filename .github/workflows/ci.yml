@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  rust:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.88.0
+        with:
+          components: rustfmt, clippy
+          targets: wasm32-wasip1
+      - run: cargo fmt --check
+      - run: cargo clippy --locked --all-targets --all-features -- -D warnings
+      - run: cargo test --locked --all-targets
+      - name: Check AgentOS WASI build
+        run: cargo check --locked --target wasm32-wasip1 --no-default-features --features agentos-wasm
+
+  real-pi:
+    name: Real Pi + LLMock (${{ matrix.label }})
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - label: current-0.80.6
+            package: "@earendil-works/pi-coding-agent"
+            version: "0.80.6"
+          - label: legacy-0.73.1
+            package: "@mariozechner/pi-coding-agent"
+            version: "0.73.1"
+          - label: legacy-0.60.0
+            package: "@mariozechner/pi-coding-agent"
+            version: "0.60.0"
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@1.88.0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+          cache: npm
+          cache-dependency-path: bench/node/package-lock.json
+      - run: cargo build --locked
+      - run: npm ci --ignore-scripts
+        working-directory: bench/node
+      - name: Install real Pi CLI
+        run: npm install --prefix "$RUNNER_TEMP/pi" "${{ matrix.package }}@${{ matrix.version }}"
+      - name: Run two-turn resume flow against LLMock
+        working-directory: bench/node
+        env:
+          PI_ACP_PI_VERSION: ${{ matrix.version }}
+        run: PI_ACP_REAL_PI="$RUNNER_TEMP/pi/node_modules/.bin/pi" npm run test:real-pi

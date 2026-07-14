@@ -1,0 +1,12 @@
+{
+  "name": "pi-acp-benchmark-fixture",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "test:real-pi": "node real-pi-e2e.mjs"
+  },
+  "dependencies": {
+    "@copilotkit/llmock": "1.6.0",
+    "pi-acp": "0.0.31"
+  }
+}

@@ -1,0 +1,371 @@
+{
+  "methodology": {
+    "samples": 30,
+    "warmups": 5,
+    "isolation": "fresh adapter and fresh state directory per sample",
+    "startupBoundary": "process spawn through ACP session/new response",
+    "steadyStateRss": "median of five /proc VmRSS polls at 20 ms intervals after session/new",
+    "fixture": "fixtures/fake-pi.py; identical get_state/get_available_models input"
+  },
+  "environment": {
+    "timestampUtc": "2026-07-14T04:45:11Z",
+    "os": "Linux-6.1.0-41-amd64-x86_64-with-glibc2.39",
+    "kernel": "6.1.0-41-amd64",
+    "architecture": "x86_64",
+    "cpu": "12th Gen Intel(R) Core(TM) i7-12700KF",
+    "logicalCpus": 20,
+    "python": "3.14.6",
+    "node": "v24.17.0",
+    "npm": "11.18.0",
+    "rustc": "rustc 1.88.0 (6b00bc388 2025-06-23)",
+    "rustAdapter": "0.1.0",
+    "nodeAdapter": "pi-acp@0.0.31",
+    "gitCommit": null
+  },
+  "results": {
+    "rust": {
+      "samples": [
+        {
+          "startupMs": 20.291875,
+          "adapterRssKiB": 8760,
+          "processTreeRssKiB": 20940
+        },
+        {
+          "startupMs": 19.938872,
+          "adapterRssKiB": 8752,
+          "processTreeRssKiB": 20932
+        },
+        {
+          "startupMs": 19.713811,
+          "adapterRssKiB": 10976,
+          "processTreeRssKiB": 23172
+        },
+        {
+          "startupMs": 25.196134,
+          "adapterRssKiB": 8796,
+          "processTreeRssKiB": 20972
+        },
+        {
+          "startupMs": 27.989589,
+          "adapterRssKiB": 10940,
+          "processTreeRssKiB": 23120
+        },
+        {
+          "startupMs": 19.458724,
+          "adapterRssKiB": 6772,
+          "processTreeRssKiB": 18944
+        },
+        {
+          "startupMs": 21.685438,
+          "adapterRssKiB": 10848,
+          "processTreeRssKiB": 23024
+        },
+        {
+          "startupMs": 20.227409,
+          "adapterRssKiB": 4800,
+          "processTreeRssKiB": 16980
+        },
+        {
+          "startupMs": 20.863591,
+          "adapterRssKiB": 4836,
+          "processTreeRssKiB": 17024
+        },
+        {
+          "startupMs": 19.799346,
+          "adapterRssKiB": 6812,
+          "processTreeRssKiB": 19052
+        },
+        {
+          "startupMs": 23.42696,
+          "adapterRssKiB": 9012,
+          "processTreeRssKiB": 21248
+        },
+        {
+          "startupMs": 109.356146,
+          "adapterRssKiB": 4756,
+          "processTreeRssKiB": 16936
+        },
+        {
+          "startupMs": 40.73974,
+          "adapterRssKiB": 6816,
+          "processTreeRssKiB": 19012
+        },
+        {
+          "startupMs": 21.823372,
+          "adapterRssKiB": 6840,
+          "processTreeRssKiB": 19016
+        },
+        {
+          "startupMs": 19.903135,
+          "adapterRssKiB": 8744,
+          "processTreeRssKiB": 20920
+        },
+        {
+          "startupMs": 27.299344,
+          "adapterRssKiB": 10848,
+          "processTreeRssKiB": 23092
+        },
+        {
+          "startupMs": 19.924391,
+          "adapterRssKiB": 10908,
+          "processTreeRssKiB": 23104
+        },
+        {
+          "startupMs": 21.859089,
+          "adapterRssKiB": 10864,
+          "processTreeRssKiB": 23032
+        },
+        {
+          "startupMs": 19.143534,
+          "adapterRssKiB": 4712,
+          "processTreeRssKiB": 16892
+        },
+        {
+          "startupMs": 19.807725,
+          "adapterRssKiB": 8768,
+          "processTreeRssKiB": 20948
+        },
+        {
+          "startupMs": 19.518489,
+          "adapterRssKiB": 10940,
+          "processTreeRssKiB": 23120
+        },
+        {
+          "startupMs": 19.98227,
+          "adapterRssKiB": 8736,
+          "processTreeRssKiB": 20928
+        },
+        {
+          "startupMs": 19.562581,
+          "adapterRssKiB": 8804,
+          "processTreeRssKiB": 20988
+        },
+        {
+          "startupMs": 19.992764,
+          "adapterRssKiB": 8888,
+          "processTreeRssKiB": 21072
+        },
+        {
+          "startupMs": 19.594396,
+          "adapterRssKiB": 9008,
+          "processTreeRssKiB": 21184
+        },
+        {
+          "startupMs": 20.003365,
+          "adapterRssKiB": 10880,
+          "processTreeRssKiB": 23072
+        },
+        {
+          "startupMs": 19.005474,
+          "adapterRssKiB": 6788,
+          "processTreeRssKiB": 18984
+        },
+        {
+          "startupMs": 19.312922,
+          "adapterRssKiB": 4720,
+          "processTreeRssKiB": 16900
+        },
+        {
+          "startupMs": 19.668792,
+          "adapterRssKiB": 4772,
+          "processTreeRssKiB": 17124
+        },
+        {
+          "startupMs": 19.476874,
+          "adapterRssKiB": 4824,
+          "processTreeRssKiB": 17004
+        }
+      ],
+      "startupMs": {
+        "median": 19.96,
+        "p95": 40.74,
+        "min": 19.01,
+        "max": 109.36
+      },
+      "adapterRssKiB": {
+        "median": 8756.0,
+        "p95": 10940,
+        "min": 4712,
+        "max": 10976
+      },
+      "processTreeRssKiB": {
+        "median": 20936.0,
+        "p95": 23120,
+        "min": 16892,
+        "max": 23172
+      }
+    },
+    "node": {
+      "samples": [
+        {
+          "startupMs": 100.803037,
+          "adapterRssKiB": 97304,
+          "processTreeRssKiB": 109480
+        },
+        {
+          "startupMs": 112.979012,
+          "adapterRssKiB": 97108,
+          "processTreeRssKiB": 109288
+        },
+        {
+          "startupMs": 105.728068,
+          "adapterRssKiB": 97172,
+          "processTreeRssKiB": 109408
+        },
+        {
+          "startupMs": 105.49746,
+          "adapterRssKiB": 96628,
+          "processTreeRssKiB": 108812
+        },
+        {
+          "startupMs": 99.513093,
+          "adapterRssKiB": 95128,
+          "processTreeRssKiB": 107308
+        },
+        {
+          "startupMs": 94.970511,
+          "adapterRssKiB": 95248,
+          "processTreeRssKiB": 107428
+        },
+        {
+          "startupMs": 102.238637,
+          "adapterRssKiB": 97336,
+          "processTreeRssKiB": 109536
+        },
+        {
+          "startupMs": 100.674449,
+          "adapterRssKiB": 95556,
+          "processTreeRssKiB": 107748
+        },
+        {
+          "startupMs": 99.51628,
+          "adapterRssKiB": 97372,
+          "processTreeRssKiB": 109564
+        },
+        {
+          "startupMs": 102.5865,
+          "adapterRssKiB": 95416,
+          "processTreeRssKiB": 107612
+        },
+        {
+          "startupMs": 164.015381,
+          "adapterRssKiB": 97540,
+          "processTreeRssKiB": 109708
+        },
+        {
+          "startupMs": 379.085584,
+          "adapterRssKiB": 94672,
+          "processTreeRssKiB": 106852
+        },
+        {
+          "startupMs": 119.030367,
+          "adapterRssKiB": 95688,
+          "processTreeRssKiB": 107888
+        },
+        {
+          "startupMs": 104.152587,
+          "adapterRssKiB": 95452,
+          "processTreeRssKiB": 107628
+        },
+        {
+          "startupMs": 100.89186,
+          "adapterRssKiB": 95084,
+          "processTreeRssKiB": 107276
+        },
+        {
+          "startupMs": 99.531353,
+          "adapterRssKiB": 95456,
+          "processTreeRssKiB": 107680
+        },
+        {
+          "startupMs": 121.988353,
+          "adapterRssKiB": 95932,
+          "processTreeRssKiB": 108112
+        },
+        {
+          "startupMs": 99.203073,
+          "adapterRssKiB": 97460,
+          "processTreeRssKiB": 109636
+        },
+        {
+          "startupMs": 102.703525,
+          "adapterRssKiB": 95576,
+          "processTreeRssKiB": 107756
+        },
+        {
+          "startupMs": 98.980652,
+          "adapterRssKiB": 97416,
+          "processTreeRssKiB": 109652
+        },
+        {
+          "startupMs": 98.87964,
+          "adapterRssKiB": 95288,
+          "processTreeRssKiB": 107464
+        },
+        {
+          "startupMs": 100.320273,
+          "adapterRssKiB": 97456,
+          "processTreeRssKiB": 109632
+        },
+        {
+          "startupMs": 105.066464,
+          "adapterRssKiB": 94956,
+          "processTreeRssKiB": 107148
+        },
+        {
+          "startupMs": 104.030917,
+          "adapterRssKiB": 96860,
+          "processTreeRssKiB": 109104
+        },
+        {
+          "startupMs": 99.144517,
+          "adapterRssKiB": 97308,
+          "processTreeRssKiB": 109560
+        },
+        {
+          "startupMs": 98.663122,
+          "adapterRssKiB": 93572,
+          "processTreeRssKiB": 105808
+        },
+        {
+          "startupMs": 100.397628,
+          "adapterRssKiB": 93868,
+          "processTreeRssKiB": 106040
+        },
+        {
+          "startupMs": 99.27066,
+          "adapterRssKiB": 93488,
+          "processTreeRssKiB": 105664
+        },
+        {
+          "startupMs": 105.122554,
+          "adapterRssKiB": 93428,
+          "processTreeRssKiB": 105604
+        },
+        {
+          "startupMs": 101.799245,
+          "adapterRssKiB": 93992,
+          "processTreeRssKiB": 106168
+        }
+      ],
+      "startupMs": {
+        "median": 101.35,
+        "p95": 164.02,
+        "min": 94.97,
+        "max": 379.09
+      },
+      "adapterRssKiB": {
+        "median": 95566.0,
+        "p95": 97460,
+        "min": 93428,
+        "max": 97540
+      },
+      "processTreeRssKiB": {
+        "median": 107752.0,
+        "p95": 109652,
+        "min": 105604,
+        "max": 109708
+      }
+    }
+  }
+}

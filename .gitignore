@@ -1,0 +1,7 @@
+/target
+/dist
+/target-distrib
+node_modules/
+/.idea
+/.DS_Store
+*.log

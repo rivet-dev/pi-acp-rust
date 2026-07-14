@@ -1,0 +1,84 @@
+[package]
+name = "pi-acp-rust"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "Apache-2.0"
+description = "Low-overhead Agent Client Protocol adapter for Pi"
+repository = "https://github.com/rivet-dev/pi-acp-rust"
+homepage = "https://github.com/rivet-dev/pi-acp-rust"
+keywords = ["acp", "pi", "agent", "cli"]
+categories = ["command-line-utilities", "development-tools"]
+
+[[bin]]
+name = "pi-acp"
+path = "src/main.rs"
+
+[features]
+default = ["native-process"]
+native-process = ["tokio/process", "tokio/signal"]
+agentos-wasm = []
+
+[dependencies]
+agent-client-protocol-schema = { version = "1.4.0", features = ["unstable"] }
+anyhow = "1.0"
+async-trait = "0.1"
+base64 = "0.22"
+clap = { version = "4.5", features = ["derive", "env"] }
+directories = "6.0"
+futures = "0.3"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+thiserror = "2.0"
+time = { version = "0.3", features = ["formatting"] }
+# Tokio 1.52 enables an unstable `wasi_ext` compiler feature on wasm32-wasip1.
+# Keep the AgentOS WASI artifact buildable on the pinned stable toolchain.
+tokio = { version = "=1.51.0", features = ["io-util", "macros", "rt", "sync", "time"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+uuid = { version = "1.18", features = ["v4"] }
+
+[target.'cfg(target_os = "wasi")'.dependencies]
+wasi = "0.11.1"
+
+[target.'cfg(not(target_os = "wasi"))'.dependencies]
+tokio = { version = "1.47", features = ["fs", "io-std"] }
+
+[dev-dependencies]
+assert_matches = "1.5"
+tempfile = "3.23"
+
+[profile.release]
+codegen-units = 1
+lto = "thin"
+opt-level = "s"
+panic = "abort"
+strip = "symbols"
+
+# The profile that 'dist' will build with
+[profile.dist]
+inherits = "release"
+lto = "thin"
+
+# Config for 'dist'
+[workspace.metadata.dist]
+# The preferred dist version to use in CI (Cargo.toml SemVer syntax)
+cargo-dist-version = "0.32.0"
+# CI backends to support
+ci = "github"
+# The installers to generate for each app
+installers = ["npm"]
+# Target platforms to build apps for (Rust target-triple syntax)
+targets = ["aarch64-apple-darwin", "aarch64-unknown-linux-gnu", "x86_64-apple-darwin", "x86_64-unknown-linux-gnu", "x86_64-pc-windows-msvc"]
+# A namespace to use when publishing this package to the npm registry
+npm-scope = "@rivet-dev"
+# The npm package should have this name
+npm-package = "pi-acp"
+# Which actions to run on pull requests
+pr-run-mode = "plan"
+# Whether to enable GitHub Attestations
+github-attestations = true
+# Publish through npm trusted publishing (OIDC); no long-lived npm token is stored.
+publish-jobs = ["./publish-npm-oidc"]
+# release.yml adds the AgentOS WASM build beside cargo-dist's generated jobs.
+allow-dirty = ["ci"]
