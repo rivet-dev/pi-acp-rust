@@ -10,7 +10,7 @@ The current compatibility target is `@earendil-works/pi-coding-agent@0.80.6`. CI
 
 - `@rivet-dev/pi-acp`: cargo-dist npm launcher for macOS arm64/x64, Linux arm64/x64, and Windows x64.
 
-AgentOS pins a source commit and owns any VM-specific patch and cross-compilation. This repository publishes no AgentOS- or WASM-specific artifact.
+Only the native artifacts listed above are published from this repository.
 
 ## Compatibility contract
 
