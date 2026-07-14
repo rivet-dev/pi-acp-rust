@@ -11,8 +11,8 @@ On an i7-12700KF Linux host, 30 isolated interleaved runs produced:
 
 | Adapter | Startup median | Startup p95 | Adapter RSS median | Process-tree RSS median |
 | --- | ---: | ---: | ---: | ---: |
-| Rust `0.1.0` | 20.1 ms | 65.2 ms | 3.7 MiB | 15.6 MiB |
-| JavaScript `pi-acp@0.0.31` | 356.2 ms | 1,451.8 ms | 91.6 MiB | 103.6 MiB |
+| Rust `0.1.1` | 19.0 ms | 20.8 ms | 3.7 MiB | 15.8 MiB |
+| JavaScript `pi-acp@0.0.31` | 104.0 ms | 112.0 ms | 91.5 MiB | 103.6 MiB |
 
 Reproduce it on Linux with exactly `python3 bench/run.py --samples 30 --warmups 5`; see the [methodology and raw samples](bench/results-linux-x86_64.json).
 

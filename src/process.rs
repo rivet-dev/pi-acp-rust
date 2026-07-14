@@ -12,6 +12,7 @@ pub type BoxWriter = Box<dyn AsyncWrite + Send + Unpin>;
 pub struct SpawnedProcess {
     pub stdin: BoxWriter,
     pub stdout: BoxReader,
+    pub stderr: BoxReader,
     pub child: Box<dyn ChildHandle>,
 }
 
@@ -37,22 +38,42 @@ pub trait ProcessBackend: Send + Sync {
 pub struct NativeProcessBackend;
 
 #[cfg(all(feature = "native-process", not(target_os = "wasi")))]
-struct TokioChild(tokio::process::Child);
+struct TokioChild {
+    child: tokio::process::Child,
+    status: Option<i32>,
+}
+
+#[cfg(all(feature = "native-process", not(target_os = "wasi")))]
+fn exit_code(status: std::process::ExitStatus) -> i32 {
+    status.code().unwrap_or(128)
+}
 
 #[cfg(all(feature = "native-process", not(target_os = "wasi")))]
 #[async_trait]
 impl ChildHandle for TokioChild {
     async fn kill(&mut self) -> anyhow::Result<()> {
-        self.0.kill().await?;
+        if self.status.is_some() {
+            return Ok(());
+        }
+        if let Some(status) = self.child.try_wait()? {
+            self.status = Some(exit_code(status));
+            return Ok(());
+        }
+        self.child.kill().await?;
         Ok(())
     }
 
     async fn wait(&mut self) -> anyhow::Result<i32> {
-        Ok(self.0.wait().await?.code().unwrap_or(128))
+        if let Some(status) = self.status {
+            return Ok(status);
+        }
+        let status = exit_code(self.child.wait().await?);
+        self.status = Some(status);
+        Ok(status)
     }
 
     fn id(&self) -> Option<u32> {
-        self.0.id()
+        self.child.id()
     }
 }
 
@@ -70,7 +91,7 @@ impl ProcessBackend for NativeProcessBackend {
             .current_dir(cwd)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
-            .stderr(Stdio::inherit())
+            .stderr(Stdio::piped())
             .kill_on_drop(true)
             .spawn()?;
         let stdin = child
@@ -81,10 +102,18 @@ impl ProcessBackend for NativeProcessBackend {
             .stdout
             .take()
             .ok_or_else(|| anyhow::anyhow!("Pi child stdout was not piped"))?;
+        let stderr = child
+            .stderr
+            .take()
+            .ok_or_else(|| anyhow::anyhow!("Pi child stderr was not piped"))?;
         Ok(SpawnedProcess {
             stdin: Box::new(stdin),
             stdout: Box::new(stdout),
-            child: Box::new(TokioChild(child)),
+            stderr: Box::new(stderr),
+            child: Box::new(TokioChild {
+                child,
+                status: None,
+            }),
         })
     }
 }
@@ -113,12 +142,14 @@ pub fn agentos_stdio() -> anyhow::Result<(BoxReader, BoxWriter)> {
 #[cfg(all(feature = "agentos-wasm", target_os = "wasi"))]
 mod wasi_backend {
     use std::{
+        future::Future,
         io::{self, Read, Write},
         mem::ManuallyDrop,
         os::fd::{FromRawFd, RawFd},
         path::Path,
         pin::Pin,
         task::{Context, Poll},
+        time::Duration,
     };
 
     use async_trait::async_trait;
@@ -152,6 +183,7 @@ mod wasi_backend {
     struct WasiReader {
         fd: RawFd,
         owned: bool,
+        retry: Option<Pin<Box<tokio::time::Sleep>>>,
     }
 
     struct WasiWriter {
@@ -165,7 +197,11 @@ mod wasi_backend {
     impl WasiReader {
         fn new(fd: RawFd, owned: bool) -> io::Result<Self> {
             set_nonblocking(fd)?;
-            Ok(Self { fd, owned })
+            Ok(Self {
+                fd,
+                owned,
+                retry: None,
+            })
         }
     }
 
@@ -181,19 +217,29 @@ mod wasi_backend {
             cx: &mut Context<'_>,
             buffer: &mut ReadBuf<'_>,
         ) -> Poll<io::Result<()>> {
-            let file = unsafe {
-                ManuallyDrop::new(std::fs::File::from_raw_fd(self.as_ref().get_ref().fd))
-            };
+            let this = self.get_mut();
+            if let Some(retry) = this.retry.as_mut() {
+                if retry.as_mut().poll(cx).is_pending() {
+                    return Poll::Pending;
+                }
+                this.retry = None;
+            }
+            let file = unsafe { ManuallyDrop::new(std::fs::File::from_raw_fd(this.fd)) };
             match (&*file).read(buffer.initialize_unfilled()) {
                 Ok(read) => {
                     buffer.advance(read);
                     Poll::Ready(Ok(()))
                 }
                 Err(error) if error.kind() == io::ErrorKind::WouldBlock => {
-                    cx.waker().wake_by_ref();
+                    let mut retry = Box::pin(tokio::time::sleep(Duration::from_millis(1)));
+                    let _ = retry.as_mut().poll(cx);
+                    this.retry = Some(retry);
                     Poll::Pending
                 }
-                Err(error) => Poll::Ready(Err(error)),
+                Err(error) => Poll::Ready(Err(io::Error::new(
+                    error.kind(),
+                    format!("read AgentOS WASI fd {}: {error}", this.fd),
+                ))),
             }
         }
     }
@@ -212,7 +258,14 @@ mod wasi_backend {
                     cx.waker().wake_by_ref();
                     Poll::Pending
                 }
-                result => Poll::Ready(result),
+                Err(error) => Poll::Ready(Err(io::Error::new(
+                    error.kind(),
+                    format!(
+                        "write AgentOS WASI fd {}: {error}",
+                        self.as_ref().get_ref().fd
+                    ),
+                ))),
+                Ok(written) => Poll::Ready(Ok(written)),
             }
         }
 
@@ -243,7 +296,7 @@ mod wasi_backend {
 
     struct WasiChild {
         pid: u32,
-        reaped: bool,
+        status: Option<i32>,
     }
 
     unsafe impl Send for WasiChild {}
@@ -252,19 +305,26 @@ mod wasi_backend {
     #[async_trait]
     impl ChildHandle for WasiChild {
         async fn kill(&mut self) -> anyhow::Result<()> {
+            if self.status.is_some() {
+                return Ok(());
+            }
             errno(unsafe { proc_kill(self.pid, 15) }, "proc_kill")?;
             Ok(())
         }
 
         async fn wait(&mut self) -> anyhow::Result<i32> {
+            if let Some(status) = self.status {
+                return Ok(status);
+            }
             let mut status = 0;
             let mut actual_pid = 0;
             errno(
                 unsafe { proc_waitpid(self.pid, 0, &mut status, &mut actual_pid) },
                 "proc_waitpid",
             )?;
-            self.reaped = true;
-            Ok(status as i32)
+            let status = status as i32;
+            self.status = Some(status);
+            Ok(status)
         }
 
         fn id(&self) -> Option<u32> {
@@ -274,7 +334,7 @@ mod wasi_backend {
 
     impl Drop for WasiChild {
         fn drop(&mut self) {
-            if self.reaped {
+            if self.status.is_some() {
                 return;
             }
             unsafe {
@@ -330,6 +390,16 @@ mod wasi_backend {
                 return Err(error);
             }
         };
+        let (stderr_read, stderr_write) = match pipe() {
+            Ok(pipe) => pipe,
+            Err(error) => {
+                close(stdin_read);
+                close(stdin_write);
+                close(stdout_read);
+                close(stdout_write);
+                return Err(error);
+            }
+        };
         let mut pid = 0;
         let result = errno(
             unsafe {
@@ -340,7 +410,7 @@ mod wasi_backend {
                     0,
                     stdin_read,
                     stdout_write,
-                    2,
+                    stderr_write,
                     cwd.as_ptr(),
                     u32::try_from(cwd.len())?,
                     &mut pid,
@@ -350,16 +420,42 @@ mod wasi_backend {
         );
         close(stdin_read);
         close(stdout_write);
+        close(stderr_write);
         if let Err(error) = result {
             close(stdin_write);
             close(stdout_read);
+            close(stderr_read);
             return Err(error);
         }
 
+        let streams = (|| {
+            Ok::<_, anyhow::Error>((
+                Box::new(WasiWriter::new(stdin_write as RawFd, true)?) as BoxWriter,
+                Box::new(WasiReader::new(stdout_read as RawFd, true)?) as BoxReader,
+                Box::new(WasiReader::new(stderr_read as RawFd, true)?) as BoxReader,
+            ))
+        })();
+        let (stdin, stdout, stderr) = match streams {
+            Ok(streams) => streams,
+            Err(error) => {
+                close(stdin_write);
+                close(stdout_read);
+                close(stderr_read);
+                unsafe {
+                    let _ = proc_kill(pid, 9);
+                    let mut status = 0;
+                    let mut actual_pid = 0;
+                    let _ = proc_waitpid(pid, 0, &mut status, &mut actual_pid);
+                }
+                return Err(error);
+            }
+        };
+
         Ok(SpawnedProcess {
-            stdin: Box::new(WasiWriter::new(stdin_write as RawFd, true)?),
-            stdout: Box::new(WasiReader::new(stdout_read as RawFd, true)?),
-            child: Box::new(WasiChild { pid, reaped: false }),
+            stdin,
+            stdout,
+            stderr,
+            child: Box::new(WasiChild { pid, status: None }),
         })
     }
 

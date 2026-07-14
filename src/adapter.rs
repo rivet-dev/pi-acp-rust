@@ -9,6 +9,7 @@ use std::{
 };
 
 use agent_client_protocol_schema::v1::*;
+use anyhow::Context;
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 use tokio::{
@@ -145,7 +146,12 @@ impl Adapter {
         if !cwd.is_absolute() {
             anyhow::bail!("session cwd must be absolute: {}", cwd.display());
         }
-        std::fs::create_dir_all(self.session_dir())?;
+        std::fs::create_dir_all(self.session_dir()).with_context(|| {
+            format!(
+                "create Pi session directory {}",
+                self.session_dir().display()
+            )
+        })?;
         let mut system_prompts = self.config.append_system_prompts.clone();
         if let Some(prompt) = meta_string(request_meta, "systemPrompt") {
             system_prompts.push(prompt);
@@ -160,7 +166,8 @@ impl Adapter {
             &self.config.pi_args,
         )
         .await?;
-        let (state, models) = tokio::try_join!(pi.get_state(), pi.get_models())?;
+        let (state, models) = tokio::try_join!(pi.get_state(), pi.get_models())
+            .context("read initial Pi RPC state and models")?;
         let session_id = state
             .get("sessionId")
             .and_then(Value::as_str)
@@ -571,7 +578,7 @@ impl Adapter {
                 let (session_id, session) = self
                     .spawn_session(&request.cwd, None, request.meta.as_ref())
                     .await
-                    .map_err(internal_error)?;
+                    .map_err(|error| internal_error(format!("{error:#}")))?;
                 let response = NewSessionResponse::new(session_id.clone())
                     .modes(self.modes(&session).await)
                     .config_options(self.configuration(&session).await);

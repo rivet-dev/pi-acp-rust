@@ -3,6 +3,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
+use anyhow::Context;
 use serde::{Deserialize, Serialize};
 use tokio::sync::Mutex;
 
@@ -35,6 +36,9 @@ impl SessionIndex {
     }
 
     async fn read_unlocked(&self) -> anyhow::Result<IndexFile> {
+        if !self.path.exists() {
+            return Ok(IndexFile::default());
+        }
         match std::fs::read(&self.path) {
             Ok(bytes) => Ok(serde_json::from_slice(&bytes)?),
             Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(IndexFile::default()),
@@ -44,13 +48,21 @@ impl SessionIndex {
 
     async fn write_unlocked(&self, index: &IndexFile) -> anyhow::Result<()> {
         if let Some(parent) = self.path.parent() {
-            std::fs::create_dir_all(parent)?;
+            std::fs::create_dir_all(parent)
+                .with_context(|| format!("create Pi ACP index directory {}", parent.display()))?;
         }
         let temporary = self
             .path
             .with_extension(format!("tmp-{}", uuid::Uuid::new_v4()));
-        std::fs::write(&temporary, serde_json::to_vec_pretty(index)?)?;
-        std::fs::rename(&temporary, &self.path)?;
+        std::fs::write(&temporary, serde_json::to_vec_pretty(index)?)
+            .with_context(|| format!("write temporary Pi ACP index {}", temporary.display()))?;
+        std::fs::rename(&temporary, &self.path).with_context(|| {
+            format!(
+                "replace Pi ACP index {} with {}",
+                self.path.display(),
+                temporary.display()
+            )
+        })?;
         Ok(())
     }
 

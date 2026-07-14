@@ -158,7 +158,7 @@ def environment():
         "node": command_output(["node", "--version"]),
         "npm": command_output(["npm", "--version"]),
         "rustc": command_output(["rustc", "--version"]),
-        "rustAdapter": "0.1.0",
+        "rustAdapter": "0.1.1",
         "nodeAdapter": "pi-acp@0.0.31",
         "gitCommit": optional_command_output(["git", "rev-parse", "HEAD"]),
     }
