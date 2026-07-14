@@ -8,7 +8,7 @@
     "fixture": "fixtures/fake-pi.py; identical get_state/get_available_models input"
   },
   "environment": {
-    "timestampUtc": "2026-07-14T04:45:11Z",
+    "timestampUtc": "2026-07-14T05:28:39Z",
     "os": "Linux-6.1.0-41-amd64-x86_64-with-glibc2.39",
     "kernel": "6.1.0-41-amd64",
     "architecture": "x86_64",
@@ -20,351 +20,351 @@
     "rustc": "rustc 1.88.0 (6b00bc388 2025-06-23)",
     "rustAdapter": "0.1.0",
     "nodeAdapter": "pi-acp@0.0.31",
-    "gitCommit": null
+    "gitCommit": "61aee8924662482898856fa0e487e9b6d118de0a"
   },
   "results": {
     "rust": {
       "samples": [
         {
-          "startupMs": 20.291875,
-          "adapterRssKiB": 8760,
-          "processTreeRssKiB": 20940
+          "startupMs": 19.326058,
+          "adapterRssKiB": 3716,
+          "processTreeRssKiB": 15928
         },
         {
-          "startupMs": 19.938872,
-          "adapterRssKiB": 8752,
-          "processTreeRssKiB": 20932
+          "startupMs": 47.476059,
+          "adapterRssKiB": 3676,
+          "processTreeRssKiB": 15900
         },
         {
-          "startupMs": 19.713811,
-          "adapterRssKiB": 10976,
-          "processTreeRssKiB": 23172
+          "startupMs": 27.925774,
+          "adapterRssKiB": 3716,
+          "processTreeRssKiB": 15928
         },
         {
-          "startupMs": 25.196134,
-          "adapterRssKiB": 8796,
-          "processTreeRssKiB": 20972
+          "startupMs": 22.276136,
+          "adapterRssKiB": 3656,
+          "processTreeRssKiB": 15868
         },
         {
-          "startupMs": 27.989589,
-          "adapterRssKiB": 10940,
-          "processTreeRssKiB": 23120
+          "startupMs": 20.181239,
+          "adapterRssKiB": 3752,
+          "processTreeRssKiB": 15960
         },
         {
-          "startupMs": 19.458724,
-          "adapterRssKiB": 6772,
-          "processTreeRssKiB": 18944
+          "startupMs": 18.706118,
+          "adapterRssKiB": 3796,
+          "processTreeRssKiB": 16004
         },
         {
-          "startupMs": 21.685438,
-          "adapterRssKiB": 10848,
-          "processTreeRssKiB": 23024
+          "startupMs": 25.735324,
+          "adapterRssKiB": 3828,
+          "processTreeRssKiB": 16056
         },
         {
-          "startupMs": 20.227409,
-          "adapterRssKiB": 4800,
-          "processTreeRssKiB": 16980
+          "startupMs": 22.025348,
+          "adapterRssKiB": 3756,
+          "processTreeRssKiB": 15968
         },
         {
-          "startupMs": 20.863591,
-          "adapterRssKiB": 4836,
-          "processTreeRssKiB": 17024
+          "startupMs": 18.859724,
+          "adapterRssKiB": 3832,
+          "processTreeRssKiB": 16108
         },
         {
-          "startupMs": 19.799346,
-          "adapterRssKiB": 6812,
-          "processTreeRssKiB": 19052
+          "startupMs": 21.766012,
+          "adapterRssKiB": 3820,
+          "processTreeRssKiB": 16092
         },
         {
-          "startupMs": 23.42696,
-          "adapterRssKiB": 9012,
-          "processTreeRssKiB": 21248
+          "startupMs": 18.47716,
+          "adapterRssKiB": 3860,
+          "processTreeRssKiB": 16072
         },
         {
-          "startupMs": 109.356146,
-          "adapterRssKiB": 4756,
-          "processTreeRssKiB": 16936
+          "startupMs": 18.667484,
+          "adapterRssKiB": 3672,
+          "processTreeRssKiB": 15892
         },
         {
-          "startupMs": 40.73974,
-          "adapterRssKiB": 6816,
-          "processTreeRssKiB": 19012
+          "startupMs": 19.60166,
+          "adapterRssKiB": 3756,
+          "processTreeRssKiB": 15964
         },
         {
-          "startupMs": 21.823372,
-          "adapterRssKiB": 6840,
-          "processTreeRssKiB": 19016
+          "startupMs": 21.602347,
+          "adapterRssKiB": 3712,
+          "processTreeRssKiB": 15924
         },
         {
-          "startupMs": 19.903135,
-          "adapterRssKiB": 8744,
-          "processTreeRssKiB": 20920
+          "startupMs": 22.42246,
+          "adapterRssKiB": 3884,
+          "processTreeRssKiB": 16096
         },
         {
-          "startupMs": 27.299344,
-          "adapterRssKiB": 10848,
-          "processTreeRssKiB": 23092
+          "startupMs": 65.236889,
+          "adapterRssKiB": 3704,
+          "processTreeRssKiB": 15916
         },
         {
-          "startupMs": 19.924391,
-          "adapterRssKiB": 10908,
-          "processTreeRssKiB": 23104
+          "startupMs": 19.751629,
+          "adapterRssKiB": 3848,
+          "processTreeRssKiB": 16060
         },
         {
-          "startupMs": 21.859089,
-          "adapterRssKiB": 10864,
-          "processTreeRssKiB": 23032
+          "startupMs": 19.1148,
+          "adapterRssKiB": 3820,
+          "processTreeRssKiB": 16028
         },
         {
-          "startupMs": 19.143534,
-          "adapterRssKiB": 4712,
-          "processTreeRssKiB": 16892
+          "startupMs": 19.981063,
+          "adapterRssKiB": 3652,
+          "processTreeRssKiB": 15876
         },
         {
-          "startupMs": 19.807725,
-          "adapterRssKiB": 8768,
-          "processTreeRssKiB": 20948
+          "startupMs": 18.658472,
+          "adapterRssKiB": 3724,
+          "processTreeRssKiB": 15960
         },
         {
-          "startupMs": 19.518489,
-          "adapterRssKiB": 10940,
-          "processTreeRssKiB": 23120
+          "startupMs": 24.69631,
+          "adapterRssKiB": 3664,
+          "processTreeRssKiB": 15880
         },
         {
-          "startupMs": 19.98227,
-          "adapterRssKiB": 8736,
-          "processTreeRssKiB": 20928
+          "startupMs": 18.8135,
+          "adapterRssKiB": 3652,
+          "processTreeRssKiB": 15876
         },
         {
-          "startupMs": 19.562581,
-          "adapterRssKiB": 8804,
-          "processTreeRssKiB": 20988
+          "startupMs": 19.477954,
+          "adapterRssKiB": 3764,
+          "processTreeRssKiB": 15976
         },
         {
-          "startupMs": 19.992764,
-          "adapterRssKiB": 8888,
-          "processTreeRssKiB": 21072
+          "startupMs": 20.331664,
+          "adapterRssKiB": 3760,
+          "processTreeRssKiB": 15968
         },
         {
-          "startupMs": 19.594396,
-          "adapterRssKiB": 9008,
-          "processTreeRssKiB": 21184
+          "startupMs": 19.710151,
+          "adapterRssKiB": 3840,
+          "processTreeRssKiB": 16048
         },
         {
-          "startupMs": 20.003365,
-          "adapterRssKiB": 10880,
-          "processTreeRssKiB": 23072
+          "startupMs": 20.966359,
+          "adapterRssKiB": 3732,
+          "processTreeRssKiB": 15944
         },
         {
-          "startupMs": 19.005474,
-          "adapterRssKiB": 6788,
-          "processTreeRssKiB": 18984
+          "startupMs": 24.959644,
+          "adapterRssKiB": 3700,
+          "processTreeRssKiB": 15928
         },
         {
-          "startupMs": 19.312922,
-          "adapterRssKiB": 4720,
-          "processTreeRssKiB": 16900
+          "startupMs": 87.353453,
+          "adapterRssKiB": 3684,
+          "processTreeRssKiB": 15892
         },
         {
-          "startupMs": 19.668792,
-          "adapterRssKiB": 4772,
-          "processTreeRssKiB": 17124
+          "startupMs": 19.921044,
+          "adapterRssKiB": 3760,
+          "processTreeRssKiB": 16040
         },
         {
-          "startupMs": 19.476874,
-          "adapterRssKiB": 4824,
-          "processTreeRssKiB": 17004
+          "startupMs": 18.700004,
+          "adapterRssKiB": 3696,
+          "processTreeRssKiB": 15972
         }
       ],
       "startupMs": {
-        "median": 19.96,
-        "p95": 40.74,
-        "min": 19.01,
-        "max": 109.36
+        "median": 20.08,
+        "p95": 65.24,
+        "min": 18.48,
+        "max": 87.35
       },
       "adapterRssKiB": {
-        "median": 8756.0,
-        "p95": 10940,
-        "min": 4712,
-        "max": 10976
+        "median": 3742.0,
+        "p95": 3860,
+        "min": 3652,
+        "max": 3884
       },
       "processTreeRssKiB": {
-        "median": 20936.0,
-        "p95": 23120,
-        "min": 16892,
-        "max": 23172
+        "median": 15962.0,
+        "p95": 16096,
+        "min": 15868,
+        "max": 16108
       }
     },
     "node": {
       "samples": [
         {
-          "startupMs": 100.803037,
-          "adapterRssKiB": 97304,
-          "processTreeRssKiB": 109480
+          "startupMs": 1696.284452,
+          "adapterRssKiB": 95440,
+          "processTreeRssKiB": 107648
         },
         {
-          "startupMs": 112.979012,
-          "adapterRssKiB": 97108,
-          "processTreeRssKiB": 109288
+          "startupMs": 898.672418,
+          "adapterRssKiB": 93708,
+          "processTreeRssKiB": 105936
         },
         {
-          "startupMs": 105.728068,
-          "adapterRssKiB": 97172,
-          "processTreeRssKiB": 109408
+          "startupMs": 138.425156,
+          "adapterRssKiB": 93688,
+          "processTreeRssKiB": 105896
         },
         {
-          "startupMs": 105.49746,
-          "adapterRssKiB": 96628,
-          "processTreeRssKiB": 108812
+          "startupMs": 539.069537,
+          "adapterRssKiB": 93668,
+          "processTreeRssKiB": 105936
         },
         {
-          "startupMs": 99.513093,
-          "adapterRssKiB": 95128,
-          "processTreeRssKiB": 107308
+          "startupMs": 429.68634,
+          "adapterRssKiB": 93644,
+          "processTreeRssKiB": 105868
         },
         {
-          "startupMs": 94.970511,
-          "adapterRssKiB": 95248,
-          "processTreeRssKiB": 107428
+          "startupMs": 1035.681867,
+          "adapterRssKiB": 95292,
+          "processTreeRssKiB": 107552
         },
         {
-          "startupMs": 102.238637,
-          "adapterRssKiB": 97336,
-          "processTreeRssKiB": 109536
+          "startupMs": 222.495565,
+          "adapterRssKiB": 91756,
+          "processTreeRssKiB": 103964
         },
         {
-          "startupMs": 100.674449,
-          "adapterRssKiB": 95556,
+          "startupMs": 1015.91482,
+          "adapterRssKiB": 93680,
+          "processTreeRssKiB": 105908
+        },
+        {
+          "startupMs": 996.703106,
+          "adapterRssKiB": 93592,
+          "processTreeRssKiB": 105804
+        },
+        {
+          "startupMs": 273.657984,
+          "adapterRssKiB": 93612,
+          "processTreeRssKiB": 105820
+        },
+        {
+          "startupMs": 103.335027,
+          "adapterRssKiB": 93488,
+          "processTreeRssKiB": 105744
+        },
+        {
+          "startupMs": 145.636635,
+          "adapterRssKiB": 95540,
           "processTreeRssKiB": 107748
         },
         {
-          "startupMs": 99.51628,
-          "adapterRssKiB": 97372,
-          "processTreeRssKiB": 109564
+          "startupMs": 170.030399,
+          "adapterRssKiB": 93820,
+          "processTreeRssKiB": 106048
         },
         {
-          "startupMs": 102.5865,
-          "adapterRssKiB": 95416,
-          "processTreeRssKiB": 107612
+          "startupMs": 112.7016,
+          "adapterRssKiB": 93548,
+          "processTreeRssKiB": 105756
         },
         {
-          "startupMs": 164.015381,
-          "adapterRssKiB": 97540,
-          "processTreeRssKiB": 109708
+          "startupMs": 199.700029,
+          "adapterRssKiB": 92988,
+          "processTreeRssKiB": 105196
         },
         {
-          "startupMs": 379.085584,
-          "adapterRssKiB": 94672,
-          "processTreeRssKiB": 106852
+          "startupMs": 831.873721,
+          "adapterRssKiB": 93844,
+          "processTreeRssKiB": 106080
         },
         {
-          "startupMs": 119.030367,
-          "adapterRssKiB": 95688,
-          "processTreeRssKiB": 107888
+          "startupMs": 525.621379,
+          "adapterRssKiB": 97184,
+          "processTreeRssKiB": 109460
         },
         {
-          "startupMs": 104.152587,
-          "adapterRssKiB": 95452,
-          "processTreeRssKiB": 107628
+          "startupMs": 147.239689,
+          "adapterRssKiB": 97616,
+          "processTreeRssKiB": 109884
         },
         {
-          "startupMs": 100.89186,
-          "adapterRssKiB": 95084,
-          "processTreeRssKiB": 107276
+          "startupMs": 1392.378469,
+          "adapterRssKiB": 97804,
+          "processTreeRssKiB": 110016
         },
         {
-          "startupMs": 99.531353,
-          "adapterRssKiB": 95456,
+          "startupMs": 942.174005,
+          "adapterRssKiB": 95728,
+          "processTreeRssKiB": 107936
+        },
+        {
+          "startupMs": 579.464759,
+          "adapterRssKiB": 95424,
           "processTreeRssKiB": 107680
         },
         {
-          "startupMs": 121.988353,
-          "adapterRssKiB": 95932,
-          "processTreeRssKiB": 108112
-        },
-        {
-          "startupMs": 99.203073,
-          "adapterRssKiB": 97460,
-          "processTreeRssKiB": 109636
-        },
-        {
-          "startupMs": 102.703525,
-          "adapterRssKiB": 95576,
-          "processTreeRssKiB": 107756
-        },
-        {
-          "startupMs": 98.980652,
-          "adapterRssKiB": 97416,
-          "processTreeRssKiB": 109652
-        },
-        {
-          "startupMs": 98.87964,
-          "adapterRssKiB": 95288,
+          "startupMs": 612.612647,
+          "adapterRssKiB": 95252,
           "processTreeRssKiB": 107464
         },
         {
-          "startupMs": 100.320273,
-          "adapterRssKiB": 97456,
-          "processTreeRssKiB": 109632
+          "startupMs": 972.703197,
+          "adapterRssKiB": 97052,
+          "processTreeRssKiB": 109324
         },
         {
-          "startupMs": 105.066464,
-          "adapterRssKiB": 94956,
-          "processTreeRssKiB": 107148
+          "startupMs": 1451.842168,
+          "adapterRssKiB": 95380,
+          "processTreeRssKiB": 107592
         },
         {
-          "startupMs": 104.030917,
-          "adapterRssKiB": 96860,
-          "processTreeRssKiB": 109104
+          "startupMs": 141.921037,
+          "adapterRssKiB": 96072,
+          "processTreeRssKiB": 108300
         },
         {
-          "startupMs": 99.144517,
-          "adapterRssKiB": 97308,
-          "processTreeRssKiB": 109560
+          "startupMs": 107.918345,
+          "adapterRssKiB": 93724,
+          "processTreeRssKiB": 105992
         },
         {
-          "startupMs": 98.663122,
-          "adapterRssKiB": 93572,
-          "processTreeRssKiB": 105808
+          "startupMs": 117.830764,
+          "adapterRssKiB": 95552,
+          "processTreeRssKiB": 107760
         },
         {
-          "startupMs": 100.397628,
-          "adapterRssKiB": 93868,
-          "processTreeRssKiB": 106040
+          "startupMs": 282.798175,
+          "adapterRssKiB": 95296,
+          "processTreeRssKiB": 107508
         },
         {
-          "startupMs": 99.27066,
-          "adapterRssKiB": 93488,
-          "processTreeRssKiB": 105664
+          "startupMs": 232.999909,
+          "adapterRssKiB": 93604,
+          "processTreeRssKiB": 105816
         },
         {
-          "startupMs": 105.122554,
-          "adapterRssKiB": 93428,
-          "processTreeRssKiB": 105604
-        },
-        {
-          "startupMs": 101.799245,
-          "adapterRssKiB": 93992,
-          "processTreeRssKiB": 106168
+          "startupMs": 105.845533,
+          "adapterRssKiB": 93560,
+          "processTreeRssKiB": 105772
         }
       ],
       "startupMs": {
-        "median": 101.35,
-        "p95": 164.02,
-        "min": 94.97,
-        "max": 379.09
+        "median": 356.24,
+        "p95": 1451.84,
+        "min": 103.34,
+        "max": 1696.28
       },
       "adapterRssKiB": {
-        "median": 95566.0,
-        "p95": 97460,
-        "min": 93428,
-        "max": 97540
+        "median": 93832.0,
+        "p95": 97616,
+        "min": 91756,
+        "max": 97804
       },
       "processTreeRssKiB": {
-        "median": 107752.0,
-        "p95": 109652,
-        "min": 105604,
-        "max": 109708
+        "median": 106064.0,
+        "p95": 109884,
+        "min": 103964,
+        "max": 110016
       }
     }
   }

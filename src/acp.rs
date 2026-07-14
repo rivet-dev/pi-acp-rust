@@ -1,14 +1,22 @@
-use std::sync::Arc;
+use std::{
+    collections::HashMap,
+    sync::{
+        Arc,
+        atomic::{AtomicI64, Ordering},
+    },
+    time::Duration,
+};
 
 use agent_client_protocol_schema::v1::{Error, RequestId};
 use serde::Serialize;
 use serde_json::{Value, json};
 use tokio::{
     io::{AsyncRead, AsyncReadExt, AsyncWrite, AsyncWriteExt},
-    sync::Mutex,
+    sync::{Mutex, oneshot},
 };
 
 pub const MAX_ACP_RECORD_BYTES: usize = 16 * 1024 * 1024;
+const CLIENT_REQUEST_TIMEOUT: Duration = Duration::from_secs(5 * 60);
 
 #[derive(Debug, serde::Deserialize)]
 pub struct Incoming {
@@ -16,20 +24,29 @@ pub struct Incoming {
     pub jsonrpc: String,
     #[serde(default)]
     pub id: Option<RequestId>,
+    #[serde(default)]
     pub method: String,
     #[serde(default)]
     pub params: Option<Value>,
+    #[serde(default)]
+    pub result: Option<Value>,
+    #[serde(default)]
+    pub error: Option<Value>,
 }
 
 #[derive(Clone)]
 pub struct Peer {
     writer: Arc<Mutex<Box<dyn AsyncWrite + Send + Unpin>>>,
+    pending: Arc<Mutex<HashMap<RequestId, oneshot::Sender<anyhow::Result<Value>>>>>,
+    next_id: Arc<AtomicI64>,
 }
 
 impl Peer {
     pub fn new(writer: impl AsyncWrite + Send + Unpin + 'static) -> Self {
         Self {
             writer: Arc::new(Mutex::new(Box::new(writer))),
+            pending: Arc::new(Mutex::new(HashMap::new())),
+            next_id: Arc::new(AtomicI64::new(1_000_000_000)),
         }
     }
 
@@ -46,6 +63,49 @@ impl Peer {
     pub async fn notification(&self, method: &str, params: impl Serialize) -> anyhow::Result<()> {
         self.write(&json!({"jsonrpc": "2.0", "method": method, "params": params}))
             .await
+    }
+
+    pub async fn request(&self, method: &str, params: impl Serialize) -> anyhow::Result<Value> {
+        let id = RequestId::Number(self.next_id.fetch_add(1, Ordering::Relaxed));
+        let (tx, rx) = oneshot::channel();
+        self.pending.lock().await.insert(id.clone(), tx);
+        if let Err(error) = self
+            .write(&json!({"jsonrpc": "2.0", "id": id, "method": method, "params": params}))
+            .await
+        {
+            self.pending.lock().await.remove(&id);
+            return Err(error);
+        }
+        match tokio::time::timeout(CLIENT_REQUEST_TIMEOUT, rx).await {
+            Ok(Ok(response)) => response,
+            Ok(Err(_)) => anyhow::bail!("ACP client response channel closed"),
+            Err(_) => {
+                self.pending.lock().await.remove(&id);
+                anyhow::bail!(
+                    "ACP client request {method} timed out after {CLIENT_REQUEST_TIMEOUT:?}"
+                )
+            }
+        }
+    }
+
+    pub async fn receive_response(
+        &self,
+        id: RequestId,
+        result: Option<Value>,
+        error: Option<Value>,
+    ) {
+        let Some(tx) = self.pending.lock().await.remove(&id) else {
+            tracing::warn!(%id, "received ACP response for an unknown request");
+            return;
+        };
+        let response = match (result, error) {
+            (Some(result), None) => Ok(result),
+            (_, Some(error)) => Err(anyhow::anyhow!("ACP client request failed: {error}")),
+            _ => Err(anyhow::anyhow!(
+                "ACP client response had no result or error"
+            )),
+        };
+        let _ = tx.send(response);
     }
 
     async fn write(&self, value: &Value) -> anyhow::Result<()> {

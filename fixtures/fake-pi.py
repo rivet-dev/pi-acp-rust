@@ -82,8 +82,10 @@ for raw in sys.stdin:
         response(request, {"messages": [{"role": "user", "content": "prior question"}, {"role": "assistant", "content": [{"type": "text", "text": "prior answer"}]}]})
     elif command == "prompt":
         response(request)
-        waiting = request.get("message") == "wait"
+        waiting = request.get("message") in ("wait", "ui")
         emit({"type": "agent_start"})
+        if request.get("message") == "ui":
+            emit({"type": "extension_ui_request", "id": "ui-1", "method": "select", "title": "Choose", "options": ["first", "second"]})
         if not waiting:
             emit({"type": "message_update", "assistantMessageEvent": {"type": "thinking_delta", "delta": "checking "}})
             if request.get("message") == "edit":
@@ -102,6 +104,11 @@ for raw in sys.stdin:
     elif command == "abort":
         response(request)
         waiting = False
+        emit({"type": "agent_settled"})
+    elif command == "extension_ui_response":
+        waiting = False
+        emit({"type": "message_update", "assistantMessageEvent": {"type": "text_delta", "delta": f"selected:{request.get('value', 'cancelled')}"}})
+        emit({"type": "agent_end", "messages": [], "willRetry": False})
         emit({"type": "agent_settled"})
     elif command == "set_model":
         model = {"provider": request["provider"], "id": request["modelId"], "name": request["modelId"], "reasoning": True}

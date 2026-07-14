@@ -36,7 +36,7 @@ jobs:
             work="$(mktemp -d)"
             tar -xzf "./npm/${package}" -C "$work"
             install -D -m 0644 ./npm/pi-acp-agentos.wasm "$work/package/wasm/pi-acp.wasm"
-            install -D -m 0644 ./npm/pi-acp-agentos.wasm.sha256 "$work/package/wasm/pi-acp.wasm.sha256"
+            (cd "$work/package/wasm" && sha256sum pi-acp.wasm > pi-acp.wasm.sha256)
             jq '
               .exports = (
                 (if (.exports | type) == "object" then .exports else {} end) +

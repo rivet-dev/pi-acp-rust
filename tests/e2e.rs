@@ -63,6 +63,15 @@ impl Harness {
                 assert!(value.get("error").is_none(), "ACP error: {value}");
                 return (value["result"].clone(), notifications);
             }
+            if value.get("method").and_then(Value::as_str) == Some("session/request_permission") {
+                let request_id = value["id"].clone();
+                self.write(json!({
+                    "jsonrpc": "2.0",
+                    "id": request_id,
+                    "result": {"outcome": {"outcome": "selected", "optionId": "choice-0"}}
+                }))
+                .await;
+            }
             notifications.push(value);
         }
     }
@@ -101,11 +110,13 @@ async fn full_session_lifecycle_and_multi_turn() {
     let (initialize, _) = acp
         .request(
             "initialize",
-            json!({"protocolVersion": 1, "clientCapabilities": {}}),
+            json!({"protocolVersion": 1, "clientCapabilities": {"auth": {"terminal": true}}}),
         )
         .await;
     assert_eq!(initialize["protocolVersion"], 1);
     assert_eq!(initialize["agentCapabilities"]["loadSession"], true);
+    assert_eq!(initialize["authMethods"][0]["type"], "terminal");
+    assert_eq!(initialize["authMethods"][0]["args"][0], "--terminal-login");
     assert!(initialize["agentCapabilities"]["sessionCapabilities"]["close"].is_object());
     assert!(initialize["agentCapabilities"]["sessionCapabilities"]["resume"].is_object());
 
@@ -163,6 +174,23 @@ async fn full_session_lifecycle_and_multi_turn() {
             .pointer("/params/update/content/0/type")
             .and_then(Value::as_str)
             == Some("diff")
+    }));
+
+    let (ui_turn, ui_updates) = acp
+        .request(
+            "session/prompt",
+            json!({"sessionId": session_id, "prompt": [{"type": "text", "text": "ui"}]}),
+        )
+        .await;
+    assert_eq!(ui_turn["stopReason"], "end_turn");
+    assert!(ui_updates.iter().any(|message| {
+        message.get("method").and_then(Value::as_str) == Some("session/request_permission")
+    }));
+    assert!(ui_updates.iter().any(|notification| {
+        notification
+            .pointer("/params/update/content/text")
+            .and_then(Value::as_str)
+            == Some("selected:first")
     }));
 
     let (listed, _) = acp.request("session/list", json!({"cwd": cwd})).await;

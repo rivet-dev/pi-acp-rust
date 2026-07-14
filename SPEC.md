@@ -27,8 +27,9 @@ AgentOS must consume the released npm path or checksummed release asset. It must
 | Models | Query Pi's live model registry, group by provider, select by `provider/model`, and refresh session state | Implemented |
 | Thinking | Advertise Pi's available thinking levels through ACP modes and config options; apply mode changes | Implemented |
 | Commands | Advertise Pi commands and translate `/compact`, `/session`, `/name`, `/steering`, `/follow-up`, and `/export` to native Pi RPC | Implemented |
+| Extension UI | Map extension select/confirm requests to ACP permissions; cancel unsupported free-form input without hanging Pi | Implemented |
 | System prompt | Repeatable `--append-system-prompt` plus ACP `_meta.systemPrompt` | Implemented |
-| Authentication | Use Pi's native host configuration and environment; no adapter-specific token conversion | Implemented |
+| Authentication | Use Pi's native host configuration and environment; no adapter-specific token conversion; advertise `--terminal-login` to capable ACP clients | Implemented |
 | MCP servers | Do not silently ignore ACP MCP configuration; return an invalid-params error because Pi RPC has no native MCP surface | Explicitly unsupported |
 | Additional roots | Do not silently ignore ACP `additionalDirectories`; return an invalid-params error because Pi RPC cannot apply them | Explicitly unsupported |
 

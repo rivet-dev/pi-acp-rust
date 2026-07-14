@@ -93,6 +93,15 @@ impl Adapter {
                     continue;
                 }
             };
+            if incoming.method.is_empty() {
+                if let Some(id) = incoming.id {
+                    peer.receive_response(id, incoming.result, incoming.error)
+                        .await;
+                } else {
+                    tracing::warn!("received ACP response without an id");
+                }
+                continue;
+            }
             if let Some(id) = incoming.id.clone() {
                 let adapter = self.clone();
                 let peer = peer.clone();
@@ -296,6 +305,97 @@ impl Adapter {
         Ok(Some(PromptResponse::new(StopReason::EndTurn)))
     }
 
+    async fn respond_to_extension_ui(
+        session_id: &str,
+        session: &LiveSession,
+        event: &Value,
+        peer: &Peer,
+    ) -> anyhow::Result<()> {
+        let ui_id = event
+            .get("id")
+            .and_then(Value::as_str)
+            .ok_or_else(|| anyhow::anyhow!("Pi extension UI request had no id"))?;
+        let method = event.get("method").and_then(Value::as_str).unwrap_or("ui");
+        let title = event
+            .get("title")
+            .and_then(Value::as_str)
+            .unwrap_or("Pi extension request");
+        let mut response = json!({"id": ui_id, "cancelled": true});
+
+        if method == "select" || method == "confirm" {
+            let choices = if method == "select" {
+                event
+                    .get("options")
+                    .and_then(Value::as_array)
+                    .cloned()
+                    .unwrap_or_default()
+                    .into_iter()
+                    .filter_map(|value| value.as_str().map(str::to_owned))
+                    .collect::<Vec<_>>()
+            } else {
+                vec!["Yes".into(), "No".into()]
+            };
+            let options = choices
+                .iter()
+                .enumerate()
+                .map(|(index, name)| {
+                    json!({"optionId": format!("choice-{index}"), "name": name, "kind": "allow_once"})
+                })
+                .collect::<Vec<_>>();
+            let request = json!({
+                "sessionId": session_id,
+                "toolCall": {
+                    "toolCallId": format!("pi-ui-{ui_id}"),
+                    "title": title,
+                    "kind": "other",
+                    "status": "pending",
+                    "rawInput": event,
+                },
+                "options": options,
+            });
+            match peer.request("session/request_permission", request).await {
+                Ok(permission) => {
+                    let selected = permission
+                        .pointer("/outcome/optionId")
+                        .and_then(Value::as_str)
+                        .and_then(|value| value.strip_prefix("choice-"))
+                        .and_then(|value| value.parse::<usize>().ok());
+                    if let Some(index) = selected {
+                        response = if method == "confirm" {
+                            json!({"id": ui_id, "confirmed": index == 0})
+                        } else if let Some(value) = choices.get(index) {
+                            json!({"id": ui_id, "value": value})
+                        } else {
+                            response
+                        };
+                    }
+                }
+                Err(error) => {
+                    tracing::warn!(%error, "Pi extension permission request failed; cancelling it");
+                }
+            }
+        } else {
+            let message = if method == "notify" {
+                event
+                    .get("message")
+                    .and_then(Value::as_str)
+                    .unwrap_or("Pi extension notification")
+                    .to_owned()
+            } else {
+                format!("Pi extension {method} input is not supported by ACP; cancelled it.")
+            };
+            peer.notification(
+                "session/update",
+                SessionNotification::new(
+                    session_id.to_owned(),
+                    translate::text_update("agent_message_chunk", &message)?,
+                ),
+            )
+            .await?;
+        }
+        session.pi.extension_ui_response(response).await
+    }
+
     async fn prompt(&self, request: PromptRequest, peer: &Peer) -> Result<PromptResponse> {
         let id = request.session_id.to_string();
         let session = self.restore(&id).await.map_err(internal_error)?;
@@ -333,6 +433,13 @@ impl Adapter {
             loop {
                 match events.recv().await {
                     Ok(PiEvent::Message(event)) => {
+                        if event.get("type").and_then(Value::as_str) == Some("extension_ui_request")
+                        {
+                            Self::respond_to_extension_ui(&id, &session, &event, peer)
+                                .await
+                                .map_err(internal_error)?;
+                            continue;
+                        }
                         for update in
                             translate::pi_event_updates(&event, &session.cwd, &mut turn_state)
                                 .map_err(internal_error)?
@@ -436,6 +543,20 @@ impl Adapter {
                     id,
                     InitializeResponse::new(request.protocol_version)
                         .agent_capabilities(capabilities)
+                        .auth_methods(
+                            request
+                                .client_capabilities
+                                .auth
+                                .terminal
+                                .then(|| {
+                                    AuthMethod::Terminal(
+                                        AuthMethodTerminal::new("pi-terminal", "Pi terminal login")
+                                            .args(vec!["--terminal-login".into()]),
+                                    )
+                                })
+                                .into_iter()
+                                .collect(),
+                        )
                         .agent_info(
                             Implementation::new("pi-acp-rust", env!("CARGO_PKG_VERSION"))
                                 .title("Pi ACP (Rust)"),

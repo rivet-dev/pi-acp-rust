@@ -221,6 +221,26 @@ impl PiProcess {
         Ok(())
     }
 
+    pub async fn extension_ui_response(&self, response: Value) -> anyhow::Result<()> {
+        if self.is_closed() {
+            anyhow::bail!("Pi process is closed");
+        }
+        let mut object = response
+            .as_object()
+            .cloned()
+            .ok_or_else(|| anyhow::anyhow!("Pi extension UI response must be an object"))?;
+        object.insert("type".into(), Value::String("extension_ui_response".into()));
+        let bytes = serde_json::to_vec(&Value::Object(object))?;
+        if bytes.len() > MAX_RPC_LINE_BYTES {
+            anyhow::bail!("Pi RPC record exceeded {MAX_RPC_LINE_BYTES} bytes");
+        }
+        let mut stdin = self.stdin.lock().await;
+        stdin.write_all(&bytes).await?;
+        stdin.write_all(b"\n").await?;
+        stdin.flush().await?;
+        Ok(())
+    }
+
     pub async fn close(&self) -> anyhow::Result<()> {
         if self.closed.swap(true, Ordering::AcqRel) {
             return Ok(());
