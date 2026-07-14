@@ -16,12 +16,9 @@ jobs:
       - uses: dtolnay/rust-toolchain@1.88.0
         with:
           components: rustfmt, clippy
-          targets: wasm32-wasip1
       - run: cargo fmt --check
       - run: cargo clippy --locked --all-targets --all-features -- -D warnings
       - run: cargo test --locked --all-targets
-      - name: Check AgentOS WASI build
-        run: cargo check --locked --target wasm32-wasip1 --no-default-features --features agentos-wasm
 
   real-pi:
     name: Real Pi + LLMock (${{ matrix.label }})

@@ -221,46 +221,14 @@ jobs:
             ${{ steps.cargo-dist.outputs.paths }}
             ${{ env.BUILD_MANIFEST_NAME }}
 
-  # Build the AgentOS WASI binary once as a platform-independent release asset.
-  # The npm publish workflow also injects this exact artifact at
-  # @rivet-dev/pi-acp/wasm/pi-acp.wasm.
-  build-agentos-wasm:
-    needs:
-      - plan
-    runs-on: "ubuntu-22.04"
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          persist-credentials: false
-      - uses: dtolnay/rust-toolchain@1.88.0
-        with:
-          targets: wasm32-wasip1
-      - name: Build AgentOS WASI adapter
-        run: cargo build --locked --release --target wasm32-wasip1 --no-default-features --features agentos-wasm
-      - name: Stage checksummed WASM artifact
-        shell: bash
-        run: |
-          mkdir -p target/distrib
-          cp target/wasm32-wasip1/release/pi-acp.wasm target/distrib/pi-acp-agentos.wasm
-          cd target/distrib
-          sha256sum pi-acp-agentos.wasm > pi-acp-agentos.wasm.sha256
-      - name: Upload AgentOS WASM artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: artifacts-build-agentos-wasm
-          path: |
-            target/distrib/pi-acp-agentos.wasm
-            target/distrib/pi-acp-agentos.wasm.sha256
-
   # Determines if we should publish/announce
   host:
     needs:
       - plan
       - build-local-artifacts
       - build-global-artifacts
-      - build-agentos-wasm
     # Only run if we're "publishing", and only if plan, local and global didn't fail (skipped is fine)
-    if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.publishing == 'true' && (needs.build-global-artifacts.result == 'skipped' || needs.build-global-artifacts.result == 'success') && (needs.build-local-artifacts.result == 'skipped' || needs.build-local-artifacts.result == 'success') && needs.build-agentos-wasm.result == 'success' }}
+    if: ${{ always() && needs.plan.result == 'success' && needs.plan.outputs.publishing == 'true' && (needs.build-global-artifacts.result == 'skipped' || needs.build-global-artifacts.result == 'success') && (needs.build-local-artifacts.result == 'skipped' || needs.build-local-artifacts.result == 'success') }}
     env:
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     runs-on: "ubuntu-22.04"

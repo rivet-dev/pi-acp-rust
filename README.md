@@ -32,8 +32,7 @@ Reproduce it on Linux with exactly `python3 bench/run.py --samples 30 --warmups 
 | ACP terminal login | Yes | Yes |
 | Per-session/system prompt injection | Yes | No adapter option |
 | MCP and additional roots | Rejected explicitly; Pi RPC has no native surface | MCP accepted but not wired |
-| AgentOS WASI artifact | Yes | No |
 
 The real-Pi LLMock gate passes two turns separated by close/resume on `@earendil-works/pi-coding-agent@0.80.6`: 14 models, `PONG`/`PONG`, and two LLM requests. Legacy `0.73.1` and `0.60.0` are also covered in CI.
 
-Releases include native binaries and `pi-acp-agentos.wasm`. The npm package exposes the AgentOS build at `@rivet-dev/pi-acp/wasm/pi-acp.wasm`.
+Releases include native binaries for macOS, Linux, and Windows. AgentOS pins this source and owns its VM-specific cross-compilation separately.

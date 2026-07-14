@@ -44,15 +44,10 @@ async fn main() -> anyhow::Result<()> {
     let args = Args::parse();
 
     if args.terminal_login {
-        #[cfg(all(feature = "native-process", not(target_os = "wasi")))]
-        {
-            let status = tokio::process::Command::new(&args.pi_command)
-                .status()
-                .await?;
-            std::process::exit(status.code().unwrap_or(1));
-        }
-        #[cfg(not(all(feature = "native-process", not(target_os = "wasi"))))]
-        anyhow::bail!("terminal login requires a process-capable build");
+        let status = tokio::process::Command::new(&args.pi_command)
+            .status()
+            .await?;
+        std::process::exit(status.code().unwrap_or(1));
     }
 
     let state_dir = args.state_dir.unwrap_or_else(|| {
@@ -65,19 +60,8 @@ async fn main() -> anyhow::Result<()> {
             .unwrap_or_else(|| PathBuf::from(".pi-acp"))
     });
 
-    #[cfg(all(feature = "native-process", not(target_os = "wasi")))]
     let backend: Arc<dyn pi_acp_rust::process::ProcessBackend> =
         Arc::new(pi_acp_rust::process::NativeProcessBackend);
-
-    #[cfg(all(feature = "agentos-wasm", target_os = "wasi"))]
-    let backend: Arc<dyn pi_acp_rust::process::ProcessBackend> =
-        Arc::new(pi_acp_rust::process::AgentOsWasiProcessBackend);
-
-    #[cfg(not(any(
-        all(feature = "native-process", not(target_os = "wasi")),
-        all(feature = "agentos-wasm", target_os = "wasi")
-    )))]
-    compile_error!("select native-process or agentos-wasm for this target");
 
     let adapter = Adapter::new(
         AdapterConfig {
@@ -91,15 +75,8 @@ async fn main() -> anyhow::Result<()> {
         backend,
     );
 
-    #[cfg(not(target_os = "wasi"))]
     adapter
         .serve(tokio::io::stdin(), tokio::io::stdout())
         .await?;
-
-    #[cfg(target_os = "wasi")]
-    {
-        let (stdin, stdout) = pi_acp_rust::process::agentos_stdio()?;
-        adapter.serve(stdin, stdout).await?;
-    }
     Ok(())
 }

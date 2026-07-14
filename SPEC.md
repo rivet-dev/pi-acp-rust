@@ -9,10 +9,8 @@ The current compatibility target is `@earendil-works/pi-coding-agent@0.80.6`. CI
 ## Public artifacts
 
 - `@rivet-dev/pi-acp`: cargo-dist npm launcher for macOS arm64/x64, Linux arm64/x64, and Windows x64.
-- `@rivet-dev/pi-acp/wasm/pi-acp.wasm`: stable npm path for the AgentOS `wasm32-wasip1` build.
-- `pi-acp-agentos.wasm` and `pi-acp-agentos.wasm.sha256`: checksummed GitHub Release assets.
 
-AgentOS must consume the released npm path or checksummed release asset. It must not bind to a checkout of this repository.
+AgentOS pins a source commit and owns any VM-specific patch and cross-compilation. This repository publishes no AgentOS- or WASM-specific artifact.
 
 ## Compatibility contract
 
@@ -37,7 +35,7 @@ The feature contract matches or exceeds AgentOS's embedded Pi SDK adapter: model
 
 ## Runtime and limits
 
-Native builds use Tokio child processes. The AgentOS WASI build uses AgentOS's `host_process` imports for pipes, spawn, wait, and signals. Both paths run the same adapter and Pi-RPC translation code.
+The adapter uses Tokio child processes to run the native Pi CLI.
 
 - ACP and Pi RPC records: 16 MiB maximum each.
 - Pending Pi RPC commands: every command has a 30-second timeout and process-exit propagation.
@@ -45,7 +43,6 @@ Native builds use Tokio child processes. The AgentOS WASI build uses AgentOS's `
 - Queued prompts: 32 by default, configurable with `--max-queued-prompts`.
 - Tracked edit tool calls: 512 by default, configurable with `--max-tracked-tool-calls`, with a warning at 80%.
 - Turn timeout: one hour.
-- WASI process arguments: 4,096 arguments, 1 MiB serialized, 4 KiB cwd.
 
 Crossing a configurable limit produces an error that names the limit and its corresponding CLI flag. Child crashes and malformed protocol records are surfaced to the ACP client or stderr.
 
@@ -53,4 +50,4 @@ Crossing a configurable limit produces an error that names the limit and its cor
 
 The deterministic Rust E2E suite exercises multi-turn prompts, ordering, tool updates/diffs, model grouping and switching, thinking modes, commands, cancellation, list/load/resume/fork/close, and transcript replay. The real-Pi suite runs two turns separated by close/resume through LLMock against all three supported Pi versions.
 
-`cargo-dist` builds and attests the native binaries. The release workflow separately cross-compiles the AgentOS WASM, publishes its SHA-256 checksum, injects the same bytes into the generated npm package, and publishes npm with OIDC provenance.
+`cargo-dist` builds and attests the native binaries and publishes the npm launcher with OIDC provenance.

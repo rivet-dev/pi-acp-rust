@@ -28,25 +28,13 @@ jobs:
           node-version: "24"
           registry-url: https://registry.npmjs.org
           package-manager-cache: false
-      - name: Add AgentOS WASM and publish public package with provenance
+      - name: Publish public package with provenance
         shell: bash
         run: |
           set -euo pipefail
           while IFS= read -r package; do
             work="$(mktemp -d)"
             tar -xzf "./npm/${package}" -C "$work"
-            install -D -m 0644 ./npm/pi-acp-agentos.wasm "$work/package/wasm/pi-acp.wasm"
-            (cd "$work/package/wasm" && sha256sum pi-acp.wasm > pi-acp.wasm.sha256)
-            jq '
-              .exports = (
-                (if (.exports | type) == "object" then .exports else {} end) +
-                {
-                  "./wasm/pi-acp.wasm": "./wasm/pi-acp.wasm",
-                  "./wasm/pi-acp.wasm.sha256": "./wasm/pi-acp.wasm.sha256"
-                }
-              )
-            ' "$work/package/package.json" > "$work/package/package.json.tmp"
-            mv "$work/package/package.json.tmp" "$work/package/package.json"
             npm publish --access public --provenance "$work/package"
             rm -rf "$work"
           done < <(jq --raw-output '.releases[].artifacts[] | select(endswith("-npm-package.tar.gz"))' <<<"$PLAN")
